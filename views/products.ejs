@@ -1,42 +1,74 @@
 <%- include('partials/header') %>
 
-<div class="text-center">
-    <span><a href="/">Home</a></span>
-    <span><a href="/logout">LogOut</a></span>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <ul class="navbar-nav  m-auto" style="flex-direction: row;">
+  <li class="nav-item active mx-2">
+    <a href="/" class="nav-link">Home</a>
+  </li>
+  <li class="nav-item active mx-2">
+    <a href="http://gyanendraknojiya.github.io"  target="_blank" class="nav-link">Portfolio</a>
+  </li>
+  <li class="nav-item active mx-2">
+    <a href="/logout" class="nav-link "><span class="btn btn-outline-danger">LogOut</span> </a>
+  </li>
+  </ul>
+</nav>
+
+
+<% if (error.length > 0){ %> 
+  <div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>Error!</strong> <%= error %> 
+  </div>
+<% }; %> 
+
+<% if (success.length > 0){ %> 
+  <div class="alert alert-success alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>Error!</strong> <%= success %> 
+  </div>
+<% }; %> 
+
+
+<div class="container">
+  <div class="text-center">
+    <span class="display-4">Available Products</span>
+<p>Start Bidding....</p>
 </div>
 <div class="row">
-    <div class="col-md-6">
-      <img src="{url}" alt="" />
-    </div>
-    <table class="table table-striped">
-        <tr>
-          <th>Title</th>
-          <th>Price</th> 
-          <th>Datils</th>
-          <th>Image URL</th>
-          <th>Place Bid</th>
-        </tr>
-<% products.forEach(item => { %>
-    
-<tr>
-<td><%= item.name %>  </td>
-<td><%= item.price %> </td>
-<td><%= item.details %> </td>
-<td><a href="<%= item.image %>" target="_blank">view</a></td>
-<td>
-    <form class="form-group" action="/products" method="post">
-        <input type="text" class="form-control" name="bid">
+
+  <% products.forEach(item => { %>   
+<div class=" col-md-4 d-flex justify-content-center text-center">
+  <div class="card mt-2" style="width:400px">
+    <img class="card-img-top product-img" src="<%= item.image %>" alt="Card image">
+    <div class="card-body">
+      <h4 class="card-title"><%= item.name %></h4>
+      <p class="card-text"><b> Details: </b><%= item.details %></p>
+      <h6 class="card-title"><b>Price: Rs </b><%= item.price %> /-</h6>
+      <p class="card-title">Your Bid: <pre><i>Should greater than price</i></pre></p>
+
+      <form class="form-group d-flex justify-content-space-between" action="/products" method="post">
+        <div class=" d-flex justify-content-coloum">
+        <input type="text" class="form-control mx-1" name="bid">
         <input type="hidden" name="userID" value="<%= userID %>">
         <input type="hidden" name="email" value="<%= email %>">
+        <input type="hidden" name="price" value="<%= item.price %>">
         <input type="hidden" name="productID" value="<%= item.id %>">
         <input type="hidden" name="productName" value="<%= item.name %>">
-        <button type="submit" class="btn btn-dark">Bid</button>
+        <button type="submit" onsubmit="checkprice()" class="btn btn-dark mx-1">Bid</button>
+        </div>
         </form>
-</td>
-</tr>
-<% }); %> 
-</table>
+    </div>
   </div>
+</div>
+
+<% }); %> 
+</div>
+</div>
+
+
+
+
 
 
 

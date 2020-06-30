@@ -7,20 +7,25 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const session = require("express-session");
-const alert = require("alert")
+const flash = require('connect-flash');
+const cookieParser = require('cookie-parser')
 
 const app = express();
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 mongoose.set("useCreateIndex", true);
+app.use(cookieParser())
 app.use(
   session({
     secret: process.env.SECRET,
     resave: false,
+    cookie: {maxAge: 60000},
     saveUninitialized: false,
   })
 );
+app.use(flash());
+
 
 mongoose.set("useFindAndModify", false);
 
@@ -113,6 +118,8 @@ app.get("/products", function (req, res) {
               userID: result.id,
               email: result.username,
               products: products,
+              error : req.flash('error'),
+              success : req.flash('success')
             });
           }
         });
@@ -150,13 +157,13 @@ app.get("/admin", function (req, res) {
   }
 });
 
-app.get("/products", function (req, res) {
-  if (req.isAuthenticated()) {
-    res.render("products");
-  } else {
-    res.redirect("/coustomer-login");
-  }
-});
+// app.get("/products", function (req, res) {
+//   if (req.isAuthenticated()) {
+//     res.render("products",{ message : req.flash('error')});
+//   } else {
+//     res.redirect("/coustomer-login");
+//   }
+// });
 
 app.get("/logout", function (req, res) {
   req.logout();
@@ -256,7 +263,7 @@ app.post("/products", function (req, res) {
       console.log(err);
       res.redirect("/products");
     } else if (result.price > req.body.bid) {
-    alert('Bid should be more than pproduct price')
+      req.flash('error', 'Bid is less than price. Please increase your bid!')
       res.redirect("/products");
     } else {
       Product.findOneAndUpdate(
@@ -275,6 +282,7 @@ app.post("/products", function (req, res) {
           if (error) {
             console.log(error);
           } else {
+            req.flash('success', 'Your bid is sent to the seller.')
             res.redirect("/products");
           }
         }
