@@ -5,7 +5,7 @@
   "main": "index.js",
   "engines": {
     "node": "12.16.3"
-  },
+    },
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,5 +24,13 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^6.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyanendraknojiya/bidding-project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gyanendraknojiya/bidding-project/issues"
+  },
+  "homepage": "https://github.com/gyanendraknojiya/bidding-project#readme"
 }

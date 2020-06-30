@@ -284,5 +284,5 @@ app.post("/products", function (req, res) {
 });
 
 app.listen(process.env.PORT, function () {
-  console.log(process.env.PORT);
+  console.log('Server is running at port ' + process.env.PORT);
 });

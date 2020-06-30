@@ -1,10 +1,17 @@
 <%- include('partials/header') %>
-
-<div class="container mt-5">
-  <h1>Shopkeeper Login</h1>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <ul class="navbar-nav  m-auto">
+  <li class="nav-item active">
+    <a href="/" class="nav-link">Home</a>
+  </li>
+  </ul>
+</nav>
+<div class="container mt-5 text-center">
+  <h1 class="display-4 mb-5">Shopkeeper Login</h1>
 
   <div class="row">
-    <div class="col-sm-8">
+    <div class="col-md-4 m-auto text-center">
+
       <div class="card">
         <div class="card-body">
           <form action="/shopkeeper-login" method="POST">
@@ -18,7 +25,7 @@
             </div>
             <button type="submit" class="btn btn-dark">Login</button>
           </form>
-          <p>Not a Shopkeeper ? Resister Here..</p>
+          <pre class="mt-2">Not a Shopkeeper ? Resister Here..</pre>
           <a href="/shopkeeper-register" class="btn btn-danger">Resister</a>
 
         </div>

@@ -1,13 +1,19 @@
 <%- include('partials/header') %>
-<div class="container mt-5">
-  <h1>Coustomer Registeration</h1>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <ul class="navbar-nav  m-auto">
+  <li class="nav-item active">
+    <a href="/" class="nav-link">Home</a>
+  </li>
+  </ul>
+</nav>
+<div class="container mt-5 text-center">
+  <h1 class="display-4 mb-5">Coustomer Registeration</h1>
 
   <div class="row">
-    <div class="col-sm-8">
+    <div class="col-md-4 m-auto text-center">
       <div class="card">
         <div class="card-body">
 
-          <!-- Makes POST request to /register route -->
           <form action="/coustomer-register" method="POST">
             <div class="form-group">
               <label for="email">Email</label>
@@ -19,7 +25,8 @@
             </div>
             <button type="submit" class="btn btn-dark">Register</button>
           </form>
-          <a href="/" class="btn btn-primary mt-2">Home</a>
+          <pre class="mt-2">Already resistered? LogIn Here...</pre>
+          <a href="/coustomer-login" class="btn btn-danger">LogIn</a>
         </div>
       </div>
     </div>
