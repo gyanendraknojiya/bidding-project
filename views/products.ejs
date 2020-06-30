@@ -1,0 +1,47 @@
+<%- include('partials/header') %>
+
+<div class="text-center">
+    <span><a href="/">Home</a></span>
+    <span><a href="/logout">LogOut</a></span>
+</div>
+<div class="row">
+    <div class="col-md-6">
+      <img src="{url}" alt="" />
+    </div>
+    <table class="table table-striped">
+        <tr>
+          <th>Title</th>
+          <th>Price</th> 
+          <th>Datils</th>
+          <th>Image URL</th>
+          <th>Place Bid</th>
+        </tr>
+<% products.forEach(item => { %>
+    
+<tr>
+<td><%= item.name %>  </td>
+<td><%= item.price %> </td>
+<td><%= item.details %> </td>
+<td><a href="<%= item.image %>" target="_blank">view</a></td>
+<td>
+    <form class="form-group" action="/products" method="post">
+        <input type="text" class="form-control" name="bid">
+        <input type="hidden" name="userID" value="<%= userID %>">
+        <input type="hidden" name="email" value="<%= email %>">
+        <input type="hidden" name="productID" value="<%= item.id %>">
+        <input type="hidden" name="productName" value="<%= item.name %>">
+        <button type="submit" class="btn btn-dark">Bid</button>
+        </form>
+</td>
+</tr>
+<% }); %> 
+</table>
+  </div>
+
+
+
+
+
+
+
+<%- include('partials/footer') %>
