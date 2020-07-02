@@ -50,16 +50,14 @@ passport.use(
         return done(err);
       }
       if (!user) {
-        return done(null, false);
+        return done(null, false, { message : 'User does not exists'});
       }
       bcrypt.compare(password, user.password, function (err, result) {
         console.log(result);
         if (!result) {
-          console.log("wrong password");
-          return done(null, false);
+          return done(null, false, { message : 'You have entered a wrong password'});
         } else {
-          console.log("Coustomer loggedIn successfully");
-          return done(null, user);
+          return done(null, user, { message : 'Logged in successfully...'});
         }
       });
     });
@@ -74,16 +72,13 @@ passport.use(
         return done(err);
       }
       if (!user) {
-        console.log("user not found");
-        return done(null, false);
+        return done(null, false, { message : 'User does not exists'});
       } else {
         bcrypt.compare(password, user.password, function (err, result) {
           if (!result) {
-            console.log("password not matched");
-            return done(null, false);
+            return done(null, false, { message : 'You have entered a wrong password'});
           } else {
-            console.log("loggedIn successfully");
-            return done(null, user);
+            return done(null, user, { message : 'Logged in successfully...'});
           }
         });
       }
@@ -100,7 +95,6 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(function (user, done) {
-  console.log(user);
   if (user.type === "Shopkeeper") {
     Shopkeeper.findById(user.id, function (err, user) {
       done(err, user);
@@ -260,21 +254,14 @@ app.post(
   "/shopkeeper-login",
   passport.authenticate("shopkeeper-local", {
     failureRedirect: "/shopkeeper-login",
-  }),
-  function (req, res) {
-    res.redirect("/admin");
-  }
+    successRedirect: "/admin",
+    failureFlash: true
+  })
 );
 
-app.post(
-  "/coustomer-login",
-  passport.authenticate("coustomer-local", {
-    failureRedirect: "/coustomer-login",
-  }),
-  function (req, res) {
-    res.redirect("/products");
-  }
-);
+app.post("/coustomer-login", passport.authenticate("coustomer-local", {
+    failureRedirect: "/coustomer-login", successRedirect: "/products", failureFlash: true,
+  }));
 
 app.post("/coustomer-register", function (req, res) {
   const { name, username, password, confirmpassword, mobile } = req.body;

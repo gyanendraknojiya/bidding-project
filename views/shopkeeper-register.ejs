@@ -1,10 +1,7 @@
-<%- include('partials/header') %> <%- include('partials/navbar') %> <% if
-(typeof error != 'undefined' ){ %>
-<div class="alert alert-danger alert-dismissible">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <strong>Error!</strong> <%= error %>
-</div>
-<% }; %>
+<%- include('partials/header') %>
+ <%- include('partials/navbar') %> <% if
+
+<%- include('partials/messages') %>
 
 <div class="sign-in-view text-center">
 <form method="POST" action="/shopkeeper-register" class="form-signin">
