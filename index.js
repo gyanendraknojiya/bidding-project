@@ -23,7 +23,14 @@ app.use(
     saveUninitialized: false,
   })
 );
-app.use(flash());
+
+app.use(flash())
+
+app.use(function(req, res, next) {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+});
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
@@ -158,7 +165,7 @@ app.get("/shopkeeper-login", function (req, res) {
 });
 app.get("/coustomer-login", function (req, res) {
   if (!req.isAuthenticated()) {
-    res.render("coustomer-login", { success: req.flash("success") });
+    res.render("coustomer-login");
   } else {
     res.redirect("products");
   }
