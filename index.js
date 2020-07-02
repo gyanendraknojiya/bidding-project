@@ -48,7 +48,7 @@ passport.use(
       bcrypt.compare(password, user.password, function (err, result) {
         console.log(result);
         if (!result) {
-          console.log('wrong password')
+          console.log("wrong password");
           return done(null, false);
         } else {
           console.log("Coustomer loggedIn successfully");
@@ -122,7 +122,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  role: String
+  role: String,
 });
 
 const productSchema = new mongoose.Schema({
@@ -180,28 +180,33 @@ app.get("/shopkeeper-register", function (req, res) {
 
 app.get("/products", function (req, res) {
   if (req.isAuthenticated()) {
-    const userEmail = req.user.username;
-    Coustomer.findOne({ username: userEmail }, function (err, result) {
-      if (err) {
-        console.log(err);
-        res.redirect("home");
-      } else {
-        Product.find({}, function (err, products) {
-          if (err) {
-            console.log(err);
-            res.redirect("home");
-          } else {
-            res.render("products", {
-              userID: result._id,
-              email: result.username,
-              products: products,
-              error: req.flash("error"),
-              success: req.flash("success"),
-            });
-          }
-        });
-      }
-    });
+    if (req.user.role === "coustomer") {
+      const userEmail = req.user.username;
+      Coustomer.findOne({ username: userEmail }, function (err, result) {
+        if (err) {
+          console.log(err);
+          res.redirect("home");
+        } else {
+          Product.find({}, function (err, products) {
+            if (err) {
+              console.log(err);
+              res.redirect("home");
+            } else {
+              res.render("products", {
+                userID: result._id,
+                email: result.username,
+                products: products,
+                error: req.flash("error"),
+                success: req.flash("success"),
+              });
+            }
+          });
+        }
+      });
+    } else {
+      req.logout();
+      res.redirect("/coustomer-login");
+    }
   } else {
     res.redirect("/coustomer-login");
   }
@@ -209,26 +214,31 @@ app.get("/products", function (req, res) {
 
 app.get("/admin", function (req, res) {
   if (req.isAuthenticated()) {
-    const userEmail = req.user.username;
-    Shopkeeper.findOne({ username: userEmail }, function (err, result) {
-      if (err) {
-        console.log(err);
-        res.redirect("home");
-      } else {
-        Product.find({ adminID: result.id }, function (err, products) {
-          if (err) {
-            console.log(err);
-            res.redirect("home");
-          } else {
-            res.render("admin", {
-              userID: result.id,
-              email: result.username,
-              products: products,
-            });
-          }
-        });
-      }
-    });
+    if (req.user.role === "shopkeeper") {
+      const userEmail = req.user.username;
+      Shopkeeper.findOne({ username: userEmail }, function (err, result) {
+        if (err) {
+          console.log(err);
+          res.redirect("home");
+        } else {
+          Product.find({ adminID: result.id }, function (err, products) {
+            if (err) {
+              console.log(err);
+              res.redirect("home");
+            } else {
+              res.render("admin", {
+                userID: result.id,
+                email: result.username,
+                products: products,
+              });
+            }
+          });
+        }
+      });
+    } else {
+      req.logout();
+      res.redirect("/shopkeeper-login");
+    }
   } else {
     res.redirect("/shopkeeper-login");
   }
@@ -272,7 +282,7 @@ app.post("/coustomer-register", function (req, res) {
                 mobile: mobile,
                 username: username,
                 password: hash,
-                role: 'coustomer'
+                role: "coustomer",
               });
               newCoustomer.save();
             });
@@ -308,7 +318,7 @@ app.post("/shopkeeper-register", function (req, res) {
                 mobile: mobile,
                 username: username,
                 password: hash,
-                role: 'Shopkeeper'
+                role: "Shopkeeper",
               });
               newShopkeeper.save();
             });
