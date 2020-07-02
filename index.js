@@ -8,7 +8,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 const app = express();
 app.use(express.static("public"));
@@ -25,92 +25,104 @@ app.use(
 );
 app.use(flash());
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-
-const saltRounds = 10;
-
-passport.use('coustomer-local',new LocalStrategy(
-  function(username, password, done) {
-    Coustomer.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      bcrypt.compare(password, user.password, function(err, result) {
-        if (!result) { return done(null, false); }
-      });
-      console.log('Coustomer loggedIn successfully');
-      return done(null, user);
-    });
-  }
-));
-passport.use('shopkeeper-local',new LocalStrategy(
-  function(username, password, done) {
-    console.log('shopkeeper Local Strategy called');
-    Shopkeeper.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) { 
-        console.log('user not found');
-        return done(null, false); 
-      }
-      bcrypt.compare(password, user.password, function(err, result) {
-        if (!result) { 
-          console.log('password not matched');
-          return done(null, false); 
-        }
-      });
-      console.log('loggedIn successfully');
-      return done(null, user);
-    });
-  }
-));
-
-// passport.serializeUser(function(user, done) {
-//   done(null, user.id);
-// });
-
-
-passport.serializeUser((user, done) => {
-  if (user instanceof Coustomer) {
-    done(null, { id: user.id, type: 'Coustomer' });
-  } else {
-    done(null, { id: user.id, type: 'Shopkeeper' });
-  }
-});
-
-// passport.deserializeUser(function(id, done) {
-//   Coustomer.findById(id, function (err, user) {
-//     done(err, user);
-//   });
-// });
-
-// passport.deserializeUser(function(id, done) {
-//   console.log(id.)
-//   Shopkeeper.findById(id, function (err, user) {
-//     done(err, user);
-//   });
-// });
-
-passport.deserializeUser(function(user, done) {
-  console.log(user)
-  if (user.type === 'Shopkeeper') {
-    Shopkeeper.findById(user.id, function (err, user) {
-   done(err, user);})
-  } else {
-    Coustomer.findById(user.id, function (err, user) {
-      done(err, user);})
-  }
-});
-
-
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+const saltRounds = 10;
+
+passport.use(
+  "coustomer-local",
+  new LocalStrategy(function (username, password, done) {
+    Coustomer.findOne({ username: username }, function (err, user) {
+      if (err) {
+        return done(err);
+      }
+      if (!user) {
+        return done(null, false);
+      }
+      bcrypt.compare(password, user.password, function (err, result) {
+        console.log(result);
+        if (!result) {
+          console.log('wrong password')
+          return done(null, false);
+        } else {
+          console.log("Coustomer loggedIn successfully");
+          return done(null, user);
+        }
+      });
+    });
+  })
+);
+passport.use(
+  "shopkeeper-local",
+  new LocalStrategy(function (username, password, done) {
+    console.log("shopkeeper Local Strategy called");
+    Shopkeeper.findOne({ username: username }, function (err, user) {
+      if (err) {
+        return done(err);
+      }
+      if (!user) {
+        console.log("user not found");
+        return done(null, false);
+      } else {
+        bcrypt.compare(password, user.password, function (err, result) {
+          if (!result) {
+            console.log("password not matched");
+            return done(null, false);
+          } else {
+            console.log("loggedIn successfully");
+            return done(null, user);
+          }
+        });
+      }
+    });
+  })
+);
+
+passport.serializeUser((user, done) => {
+  if (user instanceof Coustomer) {
+    done(null, { id: user.id, type: "Coustomer" });
+  } else {
+    done(null, { id: user.id, type: "Shopkeeper" });
+  }
+});
+
+passport.deserializeUser(function (user, done) {
+  console.log(user);
+  if (user.type === "Shopkeeper") {
+    Shopkeeper.findById(user.id, function (err, user) {
+      done(err, user);
+    });
+  } else {
+    Coustomer.findById(user.id, function (err, user) {
+      done(err, user);
+    });
+  }
+});
+
 const userSchema = new mongoose.Schema({
-  username: String,
-  password: String,
+  name: {
+    type: String,
+    required: true,
+  },
+  mobile: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  role: String
 });
 
 const productSchema = new mongoose.Schema({
@@ -134,8 +146,6 @@ const Product = new mongoose.model("Products", productSchema);
 const Shopkeeper = new mongoose.model("Shopkeeper", userSchema);
 const Coustomer = new mongoose.model("Coustomer", userSchema);
 
-
-
 app.get("/", function (req, res) {
   res.render("home");
 });
@@ -148,7 +158,7 @@ app.get("/shopkeeper-login", function (req, res) {
 });
 app.get("/coustomer-login", function (req, res) {
   if (!req.isAuthenticated()) {
-    res.render("coustomer-login");
+    res.render("coustomer-login", { success: req.flash("success") });
   } else {
     res.redirect("products");
   }
@@ -229,57 +239,96 @@ app.get("/logout", function (req, res) {
   res.redirect("/");
 });
 
-app.post("/shopkeeper-login",
-  passport.authenticate('shopkeeper-local', { failureRedirect: '/shopkeeper-login' }),
-  function(req, res) {
-    res.redirect('/admin');
-});
+app.post(
+  "/shopkeeper-login",
+  passport.authenticate("shopkeeper-local", {
+    failureRedirect: "/shopkeeper-login",
+  }),
+  function (req, res) {
+    res.redirect("/admin");
+  }
+);
 
-
-
-app.post('/coustomer-login', 
-  passport.authenticate('coustomer-local', { failureRedirect: '/coustomer-login' }),
-  function(req, res) {
-    res.redirect('/products');
-  });
-
+app.post(
+  "/coustomer-login",
+  passport.authenticate("coustomer-local", {
+    failureRedirect: "/coustomer-login",
+  }),
+  function (req, res) {
+    res.redirect("/products");
+  }
+);
 
 app.post("/coustomer-register", function (req, res) {
-  Coustomer.findOne({ username: req.body.username }, function (err, result) {
-    if (!result) {
-      bcrypt.genSalt(saltRounds, function(err, salt) {
-        bcrypt.hash(req.body.password, salt, function(err, hash) {
-          const newCoustomer = new Coustomer ({
-            username : req.body.username,
-            password: hash
-          })
-          newCoustomer.save()
-        });
-        res.redirect('/coustomer-login')
-    });
+  const { name, username, password, confirmpassword, mobile } = req.body;
+  if (name && username && password && mobile && confirmpassword) {
+    if (password === confirmpassword) {
+      Coustomer.findOne({ username: username }, function (err, result) {
+        if (!result) {
+          bcrypt.genSalt(saltRounds, function (err, salt) {
+            bcrypt.hash(password, salt, function (err, hash) {
+              const newCoustomer = new Coustomer({
+                name: name,
+                mobile: mobile,
+                username: username,
+                password: hash,
+                role: 'coustomer'
+              });
+              newCoustomer.save();
+            });
+            req.flash("success", "Registered Successfully! Please Login....");
+            console.log("registered");
+            res.redirect("coustomer-login");
+          });
+        } else {
+          var error = "Email already registered";
+          res.render("coustomer-register", { error: error });
+        }
+      });
     } else {
-      res.send("Account already exists");
+      var error = "Password not Matched";
+      res.render("coustomer-register", { error: error });
     }
-  });
+  } else {
+    var error = "Please fill all the fields";
+    res.render("coustomer-register", { error: error });
+  }
 });
 
 app.post("/shopkeeper-register", function (req, res) {
-  Shopkeeper.findOne({ username: req.body.username }, function (err, result) {
-    if (!result) {
-      bcrypt.genSalt(saltRounds, function(err, salt) {
-        bcrypt.hash(req.body.password, salt, function(err, hash) {
-          const newShopkeeper = new Shopkeeper ({
-            username : req.body.username,
-            password: hash
-          })
-          newShopkeeper.save()
-        });
-        res.redirect('/shopkeeper-login')
-    });
+  const { name, username, password, confirmpassword, mobile } = req.body;
+  if (name && username && password && mobile && confirmpassword) {
+    if (password === confirmpassword) {
+      Shopkeeper.findOne({ username: username }, function (err, result) {
+        if (!result) {
+          bcrypt.genSalt(saltRounds, function (err, salt) {
+            bcrypt.hash(password, salt, function (err, hash) {
+              const newShopkeeper = new Shopkeeper({
+                name: name,
+                mobile: mobile,
+                username: username,
+                password: hash,
+                role: 'Shopkeeper'
+              });
+              newShopkeeper.save();
+            });
+            req.flash("success", "Registered Successfully! Please Login....");
+            console.log("registered");
+            res.redirect("shopkeeper-login");
+          });
+        } else {
+          var error = "Email already registered";
+          res.render("shopkeeper-register", { error: error });
+        }
+      });
     } else {
-      res.send("Account already exists");
+      var error = "Password not Matched";
+      res.render("shopkeeper-register", { error: error });
     }
-  });
+  } else {
+    var error = "Please fill all the fields";
+    res.render("shopkeeper-register", { error: error });
+  }
 });
 
 app.post("/admin", function (req, res) {
