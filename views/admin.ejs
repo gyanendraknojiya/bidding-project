@@ -1,73 +1,105 @@
-<%- include('partials/header') %>
+<%- include('partials/header') %> <%- include('partials/messages') %>
 
-<%- include('partials/messages') %>
-
-
-<div class="text-center">
-    <span><a href="/">Home</a></span>
-    <span ><a href="/logout">LogOut</a></span>
+<div class="admin-header">
+  <a href="/">Home</a>
+  <a href="/logout">LogOut</a>
+  <p>Hello! <%= User.name.slice(0,9) %></p>
 </div>
-<div></div>
-<h1>Hello  <%= email  %> </h1>
-<h3>Add your products</h3>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <form class="form-group" action="/admin" method="POST">
-        <input class="form-control" type="text" name='name' placeholder="Enter your product Title"><br>
-        <input class="form-control" type="text" name="image" placeholder="Enter Image URL"><br>
-        <input class="form-control" type="text" name='price' placeholder="ENter your price"><br>
-        <textarea class="form-control" name="details" id="details" cols="30" rows="4" placeholder="Enter your product details "></textarea><br>
-        <input type="hidden" name="userID" value="<%= userID %>">
-        <button class="btn btn-primary ml-5">ADD</button>
-        </form>
-    </div>
-    <div class="col-md-5">
-        <h1>Products</h1>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="admin-product-box">
+        <h3>Products</h3>
         <% if (products.length === 0) { %>
-            <h3>No product found</h3>
-            <% } else{ %>
-                <table class="table table-striped">
-                    <tr>
-                      <th>Title</th>
-                      <th>Price</th> 
-                      <th>Datils</th>
-                      <th>Image URL</th>
-                    </tr>
-         <% products.forEach(item => { %>
-            <tr>
-         <td><%= item.name %> </td>
-         <td><%= item.price %> </td>
-         <td><%= item.details %> </td>
-         <td><a href="<%= item.image %>" target="_blank">view</a></td>
-        </tr>
-         <% }); %> 
-         </table>
-           <% }%>
+        <h6 class="text-center my-5">No product found</h6>
+        <% } else{ %>
+        <table class="table table-striped">
+          <tr>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Datils</th>
+            <th>Image URL</th>
+          </tr>
+          <% products.forEach(item => { %>
+          <tr>
+            <td><%= item.name %></td>
+            <td><%= item.price %></td>
+            <td><%= item.details %></td>
+            <td>
+              <img
+                src="<%= item.image %>"
+                class="admin-product-img"
+                alt="Product Image"
+              />
+            </td>
+          </tr>
+          <% }); %>
+        </table>
+        <% }%>
+      </div>
     </div>
-    <div class="col-md-3">
-
-<h1 class="text-center">Bids</h1>
-<table class="table table-striped">
-    <tr>
-        <th>BID Price</th>
-        <th>Bid By</th> 
-        <th>Product Name</th>
-      </tr>
-      <% products.forEach(item => { %> 
-      <% if (item.bid.length >0) { %> 
-      <% item.bid.forEach(bids => { %>
+    <div class="col-md-7">
+        <div class="admin-product-bid">
+      <h3 class="text-center ">Bids on products</h3>
+      <table class="table table-striped">
         <tr>
-            <td><%= bids.bidPrice %> </td>
-            <td><%= bids.email %> </td>
-            <td><%= bids.productName %> </td>
-           </tr>
-      <% }); %> 
-      <% } %> 
-      <% }); %> 
-
-</table>
+          <th>BID Price</th>
+          <th>Bid By</th>
+          <th>Product Name</th>
+        </tr>
+        <% products.forEach(item => { %>
+         <% if (item.bid.length >0) { %> 
+         <% item.bid.forEach(bids => { %>
+        <tr>
+          <td><%= bids.bidPrice %></td>
+          <td><%= bids.email %></td>
+          <td><%= bids.productName %></td>
+        </tr>
+        <% }) }}) %>
+      </table>
     </div>
+    </div>
+
+
+    <div class="col-md-5 admin-product-add">
+        <h4 class="my-3 text-center">Add New Products</h4>
+      <form class="form-group text-center" action="/admin" method="POST">
+        <input
+          class="form-control"
+          type="text"
+          name="name"
+          placeholder="Enter your product Title"
+          required
+        /><br />
+        <input
+          class="form-control"
+          type="text"
+          name="image"
+          placeholder="Enter Image URL"
+          required
+        /><br />
+        <input
+          class="form-control"
+          type="text"
+          name="price"
+          placeholder="Enter your price"
+          required
+        /><br />
+        <textarea
+          class="form-control"
+          name="details"
+          id="details"
+          cols="30"
+          rows="4"
+          required
+          placeholder="Enter your product details "
+        ></textarea
+        ><br />
+        <input type="hidden" name="userID" value="<%= User.id %>" />
+        <button class="btn btn-primary ml-5">ADD</button>
+      </form>
+    </div>
+  </div>
 </div>
 <%- include('partials/footer') %>
-

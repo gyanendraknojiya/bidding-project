@@ -54,7 +54,6 @@ passport.use(
         return done(null, false, { message : 'User does not exists'});
       }
       bcrypt.compare(password, user.password, function (err, result) {
-        console.log(result);
         if (!result) {
           return done(null, false, { message : 'You have entered a wrong password'});
         } else {
@@ -215,19 +214,18 @@ app.get("/admin", function (req, res) {
   if (req.isAuthenticated()) {
     if (req.user.role === "Shopkeeper") {
       const userEmail = req.user.username;
-      Shopkeeper.findOne({ username: userEmail }, function (err, result) {
+      Shopkeeper.findOne({ username: userEmail }, function (err, user) {
         if (err) {
           console.log(err);
           res.redirect("home");
         } else {
-          Product.find({ adminID: result.id }, function (err, products) {
+          Product.find({ adminID: user.id }, function (err, products) {
             if (err) {
               console.log(err);
               res.redirect("home");
             } else {
               res.render("admin", {
-                userID: result.id,
-                email: result.username,
+                User: user,
                 products: products,
               });
             }
@@ -342,6 +340,7 @@ app.post("/admin", function (req, res) {
     adminID: req.body.userID,
   });
   newProduct.save();
+  req.flash("success", "Product Added successfully....");
   res.redirect("/admin");
 });
 
@@ -350,7 +349,7 @@ app.post("/products", function (req, res) {
     if (err) {
       console.log(err);
       res.redirect("/products");
-    } else if (result.price > req.body.bid) {
+    } else if (result.price >= req.body.bid) {
       req.flash("error", "Bid is less than price. Please increase your bid!");
       res.redirect("/products");
     } else {

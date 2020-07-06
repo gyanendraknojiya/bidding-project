@@ -1,6 +1,7 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 body{
   margin: 0;
@@ -81,4 +82,61 @@ body{
   border: 1px solid #1d1b38;
 }
 
+.admin-header{
+  height: 50px;
+  width: 100%;
+  background-color: black;
+}
+.admin-header a{
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+  margin: 10px 0;
+  padding: 5px 8px;
+  font-size: 14px;
+  font-weight: 600;
 
+}
+.admin-header p{
+  display: inline-flex;
+  float: right;
+  margin-top: 10px;
+  margin-right: 20px;
+  color: white;
+}
+
+.admin-product-box{
+  margin: 20px 0;
+  border: 1px solid black;
+}
+.admin-product-box h3{
+  font-size: 35px;
+  text-align: center;
+  font-weight: 700;
+}
+.admin-product-img{
+  width: 120px;
+  height: 70px;
+  object-fit: cover;
+}
+
+.admin-product-add{
+  margin: 20px auto;
+  padding: 15px;
+  border: 1px solid black;
+}
+
+.admin-product-add .form-control{
+  margin: auto;
+  border: 0;
+  background: none;
+  border-bottom: 1px solid #615a7e;
+  border-radius: 0;
+  max-width: 300px;
+}
+
+.admin-product-bid{
+  margin: 20px auto;
+  border: 1px solid black;
+  min-height: 450px;
+}
