@@ -23,6 +23,7 @@ app.use(
     saveUninitialized: false,
   })
 );
+mongoose.set('useFindAndModify', false);
 
 app.use(flash())
 
@@ -66,7 +67,6 @@ passport.use(
 passport.use(
   "shopkeeper-local",
   new LocalStrategy(function (username, password, done) {
-    console.log("shopkeeper Local Strategy called");
     Shopkeeper.findOne({ username: username }, function (err, user) {
       if (err) {
         return done(err);
@@ -197,8 +197,6 @@ app.get("/products", function (req, res) {
                 userID: result._id,
                 email: result.username,
                 products: products,
-                error: req.flash("error"),
-                success: req.flash("success"),
               });
             }
           });
@@ -215,7 +213,7 @@ app.get("/products", function (req, res) {
 
 app.get("/admin", function (req, res) {
   if (req.isAuthenticated()) {
-    if (req.user.role === "shopkeeper") {
+    if (req.user.role === "Shopkeeper") {
       const userEmail = req.user.username;
       Shopkeeper.findOne({ username: userEmail }, function (err, result) {
         if (err) {
