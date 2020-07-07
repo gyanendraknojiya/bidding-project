@@ -4,11 +4,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
+
+
 
 const app = express();
 app.use(express.static("public"));
@@ -43,108 +44,16 @@ app.use(passport.session());
 
 const saltRounds = 10;
 
-passport.use(
-  "coustomer-local",
-  new LocalStrategy(function (username, password, done) {
-    Coustomer.findOne({ username: username }, function (err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false, { message : 'User does not exists'});
-      }
-      bcrypt.compare(password, user.password, function (err, result) {
-        if (!result) {
-          return done(null, false, { message : 'You have entered a wrong password'});
-        } else {
-          return done(null, user, { message : 'Logged in successfully...'});
-        }
-      });
-    });
-  })
-);
-passport.use(
-  "shopkeeper-local",
-  new LocalStrategy(function (username, password, done) {
-    Shopkeeper.findOne({ username: username }, function (err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false, { message : 'User does not exists'});
-      } else {
-        bcrypt.compare(password, user.password, function (err, result) {
-          if (!result) {
-            return done(null, false, { message : 'You have entered a wrong password'});
-          } else {
-            return done(null, user, { message : 'Logged in successfully...'});
-          }
-        });
-      }
-    });
-  })
-);
 
-passport.serializeUser((user, done) => {
-  if (user instanceof Coustomer) {
-    done(null, { id: user.id, type: "Coustomer" });
-  } else {
-    done(null, { id: user.id, type: "Shopkeeper" });
-  }
-});
 
-passport.deserializeUser(function (user, done) {
-  if (user.type === "Shopkeeper") {
-    Shopkeeper.findById(user.id, function (err, user) {
-      done(err, user);
-    });
-  } else {
-    Coustomer.findById(user.id, function (err, user) {
-      done(err, user);
-    });
-  }
-});
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  mobile: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  role: String,
-});
 
-const productSchema = new mongoose.Schema({
-  name: String,
-  details: String,
-  image: String,
-  price: Number,
-  adminID: String,
-  bid: [
-    {
-      bidPrice: Number,
-      email: String,
-      USERid: String,
-      productName: String,
-    },
-  ],
-});
 
-const Product = new mongoose.model("Products", productSchema);
+const Coustomer = require('./Models/customer.model')
+const Shopkeeper = require('./Models/shopkeeper.model')
+const Product = require('./Models/products.model')
 
-const Shopkeeper = new mongoose.model("Shopkeeper", userSchema);
-const Coustomer = new mongoose.model("Coustomer", userSchema);
+require('./passport/passport.config')(passport, Coustomer, Shopkeeper)
 
 app.get("/", function (req, res) {
   res.render("home");
@@ -313,7 +222,6 @@ app.post("/shopkeeper-register", function (req, res) {
               newShopkeeper.save();
             });
             req.flash("success", "Registered Successfully! Please Login....");
-            console.log("registered");
             res.redirect("shopkeeper-login");
           });
         } else {
